@@ -1,0 +1,65 @@
+import React, {useEffect, useState } from 'react'
+import { filter } from '../../../functions/functions'
+import { BASE_URL } from '../../../config'
+
+function ClassWise() {
+
+    const [tableData,setData] = useState({})
+    const [teacherList,setTeacherList] = useState([])
+    const [teacherName,setTeacherName] = useState('')
+
+    useEffect(() => {
+        fetch(BASE_URL + 'api/get/teachers.php')
+        .then(response => response.json())
+        .then(data => {
+            setTeacherList(data)
+            setTeacherName(data[0].name)
+        })
+    },[])
+
+    useEffect(() => {
+        if(teacherName !== "") {
+            fetch(BASE_URL + 'api/get/table/teacherwise.php?teacher='+teacherName)
+            .then(response => response.json())
+            .then(data => {
+                setData(data)
+            })
+        }
+    },[teacherName])
+
+
+    const periods = filter(tableData,item => <th key={'period-'+item['period'] } scope="col"> { item['period'] } </th>)
+    const classes = filter(tableData,item => <th key={item['period']+'class-'+item['class']} scope="col"> { item['class'] } </th>)
+    const subjects = filter(tableData,item => <th key={item['period']+'subject-'+item['subject']} scope="col"> { item['subject'] } </th>)
+    const rooms = filter(tableData,item => {
+        if(item['lab'])  item['room'] = item['lab']
+        return <th key={item['period']+'room-'+item['room']} scope="col"> { item['room'] } </th>
+    })
+
+    const selectOptions = filter(teacherList,item => <option key={item.name} > {item.name} </option>)
+
+    return (
+        <div>
+            <div className="table-responsive">
+                <table className="table table-hover table-bordered">
+                <thead className="thead-dark">
+                    <tr><th scope="col">
+                        <select value={teacherName} onChange={event => setTeacherName(event.target.value) }>
+                            <option>_____</option>
+                            {selectOptions}
+                        </select>
+                        </th>{periods}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row thread-dark" >Class</th>{ classes }</tr>
+                    <tr><th scope="row">Subject</th>{ subjects }</tr>
+                    <tr><th scope="row">Room</th>{ rooms }</tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ClassWise

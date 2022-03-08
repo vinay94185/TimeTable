@@ -1,0 +1,62 @@
+import React, {useEffect, useState } from 'react'
+import { filter } from '../../../functions/functions'
+import { BASE_URL } from '../../../config'
+
+function ClassWise() {
+
+    const [tableData,setData] = useState({})
+    const [roomList,setRoomList] = useState([])
+    const [room,setRoom] = useState('')
+
+    useEffect(() => {
+        fetch(BASE_URL + 'api/get/rooms.php')
+        .then(response => response.json())
+        .then(data => {
+            setRoomList(data)
+            setRoom(data[0].room)
+        })
+    },[])
+
+    useEffect(() => {
+        if(room !== "") {
+            fetch(BASE_URL + 'api/get/table/roomwise.php?room='+room)
+            .then(response => response.json())
+            .then(data => {
+                setData(data)
+            })
+        }
+    },[room])
+
+
+    const periods = filter(tableData,item => <th key={'period-'+item['period'] } scope="col"> { item['period'] } </th>)
+    const teachers = filter(tableData,item => <th key={item['period']+'teacher-'+item['teacher']} scope="col"> { item['teacher'] } </th>)
+    const subjects = filter(tableData,item => <th key={item['period']+'subject-'+item['subject']} scope="col"> { item['subject'] } </th>)
+    const classes = filter(tableData,item => <th key={item['period']+'class-'+item['class']} scope="col"> { item['class'] } </th>)
+
+    const selectOptions = filter(roomList,item => <option key={item.room} > {item.room} </option>)
+
+    return (
+        <div>
+            <div className="table-responsive">
+                <table className="table table-hover table-bordered">
+                <thead className="thead-dark">
+                    <tr><th scope="col">
+                        <select value={room} onChange={event => setRoom(event.target.value) } >
+                            <option> _____ </option>
+                            {selectOptions}
+                        </select>
+                        </th>{periods}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><th scope="row thread-dark" >Teacher</th>{ teachers }</tr>
+                    <tr><th scope="row">Subject</th>{ subjects }</tr>
+                    <tr><th scope="row">Class</th>{ classes }</tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ClassWise

@@ -1,0 +1,13 @@
+.clickhover td:hover {
+    background-color: #80808033;
+}
+
+.clickhover td.selected {
+    background-color: green;
+}
+
+
+.my-table .modal .modal-body form .form-group {
+    display: grid;
+    grid-row-gap: 10px;
+}
